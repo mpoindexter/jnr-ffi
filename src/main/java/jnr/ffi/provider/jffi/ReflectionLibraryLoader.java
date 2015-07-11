@@ -122,8 +122,10 @@ class ReflectionLibraryLoader extends LibraryLoader {
                 typeMapper = new NullTypeMapper();
             }
 
+            CompositeTypeMapper closureTypeMapper = new CompositeTypeMapper(typeMapper,
+                    new CachingTypeMapper(new InvokerTypeMapper(null, classLoader, NativeLibraryLoader.ASM_ENABLED)));
             this.typeMapper = new CompositeTypeMapper(typeMapper,
-                    new CachingTypeMapper(new InvokerTypeMapper(new NativeClosureManager(runtime, typeMapper, classLoader), classLoader, NativeLibraryLoader.ASM_ENABLED)));
+                    new CachingTypeMapper(new InvokerTypeMapper(new NativeClosureManager(runtime, closureTypeMapper, classLoader), classLoader, NativeLibraryLoader.ASM_ENABLED)));
             libraryCallingConvention = getCallingConvention(interfaceClass, libraryOptions);
             libraryIsSynchronized = interfaceClass.isAnnotationPresent(Synchronized.class);
             invokerFactory = new DefaultInvokerFactory(runtime, library, this.typeMapper, functionMapper, libraryCallingConvention, libraryIsSynchronized);
